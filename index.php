@@ -1,27 +1,23 @@
 <?php
-include "db.php";
+session_start();
 
-$message = "";
+if (isset($_SESSION['user'])) {
+    header("Location: pages/home.php");
+    exit();
+}
 
-if (isset($_POST['save'])) {
+$error = "";
 
-    $name   = ucwords($_POST['name']);     
-    $email  = strtolower($_POST['email']); 
-    $course = strtoupper($_POST['course']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    if (!empty($name) && !empty($email) && !empty($course)) {
-
-        $sql = "INSERT INTO students (name, email, course)
-                VALUES ('$name', '$email', '$course')";
-
-        if (mysqli_query($conn, $sql)) {
-            $message = "Student added successfully!";
-        } else {
-            $message = "Error: " . mysqli_error($conn);
-        }
-
+    if ($username == "admin" && $password == "admin123") {
+        $_SESSION['user'] = $username;
+        header("Location: pages/home.php");
+        exit();
     } else {
-        $message = "Please fill out all fields.";
+        $error = "Invalid username or password.";
     }
 }
 ?>
@@ -29,60 +25,28 @@ if (isset($_POST['save'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create Student Record</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f4f4;
-        }
-        .container {
-            width: 400px;
-            margin: auto;
-            margin-top: 50px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px gray;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background: blue;
-            color: white;
-            border: none;
-        }
-        .message {
-            color: green;
-        }
-    </style>
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="login-body">
 
-<?php include "nav.php"; ?>
+<div class="login-card">
+    <h1>Welcome to Student Management System</h1>
+    <p>Enter your Credentials to Login!</p>
 
-<div class="container">
-    <h2>Add Student</h2>
-
-    <?php if ($message != "") { ?>
-        <p class="message"><?php echo $message; ?></p>
+    <?php if ($error != "") { ?>
+        <p class="error"><?php echo $error; ?></p>
     <?php } ?>
 
-    <form method="POST">
-        <label>Name</label>
-        <input type="text" name="name" required>
+    <form method="POST" action="">
+        <label>Username</label>
+        <input type="text" name="username">
 
-        <label>Email</label>
-        <input type="email" name="email" required>
+        <label>Password</label>
+        <input type="password" name="password">
 
-        <label>Course</label>
-        <input type="text" name="course" required>
-
-        <button type="submit" name="save">Save</button>
+        <br>
+        <button type="submit" class="btn btn-dark">Login</button>
     </form>
 </div>
 
